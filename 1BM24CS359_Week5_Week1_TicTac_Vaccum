@@ -1,1 +1,45 @@
+def is_goal_state(status_a, status_b):
+    """Goal state is achieved when both squares are clean."""
+    return (status_a == 'Clean' and status_b == 'Clean')
 
+def simple_reflex_vacuum_8_states(state):
+    
+    loc, a, b = state
+
+ 
+    if is_goal_state(a, b):
+        return "Goal Reached , Both Clean"
+
+    if loc == 'A':
+        if a == 'Dirty' and b == 'Dirty':
+            return 'Suck at A or Move Right'
+        elif a == 'Clean' and b == 'Dirty':
+            return 'Move Right'
+        elif a == 'Dirty' and b == 'Clean':
+            return 'Suck at A'   
+        elif a == 'Clean' and b == 'Clean':
+            return 'No-Operation to be done'
+
+    elif loc == 'B':
+        if a == 'Dirty' and b == 'Dirty':
+            return 'Suck at B or Move left'
+        elif a == 'Dirty' and b == 'Clean':
+            return 'Move Left'
+        elif a == 'Clean' and b == 'Dirty':
+            return 'Suck at B'
+        elif a == 'Clean' and b == 'Clean':
+            return 'No-Operation to be done'
+
+
+print("Vacuum agent actions:")
+# Agent at A
+print(f"State ['A', 'Dirty', 'Dirty'] -> Action: {simple_reflex_vacuum_8_states(['A', 'Dirty', 'Dirty'])}")
+print(f"State ['A', 'Dirty', 'Clean'] -> Action: {simple_reflex_vacuum_8_states(['A', 'Dirty', 'Clean'])}")
+print(f"State ['A', 'Clean', 'Dirty'] -> Action: {simple_reflex_vacuum_8_states(['A', 'Clean', 'Dirty'])}")
+print(f"State ['A', 'Clean', 'Clean'] -> Action: {simple_reflex_vacuum_8_states(['A', 'Clean', 'Clean'])}")
+
+# Agent at B
+print(f"State ['B', 'Dirty', 'Dirty'] -> Action: {simple_reflex_vacuum_8_states(['B', 'Dirty', 'Dirty'])}")
+print(f"State ['B', 'Dirty', 'Clean'] -> Action: {simple_reflex_vacuum_8_states(['B', 'Dirty', 'Clean'])}")
+print(f"State ['B', 'Clean', 'Dirty'] -> Action: {simple_reflex_vacuum_8_states(['B', 'Clean', 'Dirty'])}")
+print(f"State ['B', 'Clean', 'Clean'] -> Action: {simple_reflex_vacuum_8_states(['B', 'Clean', 'Clean'])}")
