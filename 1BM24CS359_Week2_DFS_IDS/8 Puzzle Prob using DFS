@@ -1,1 +1,92 @@
 
+# 8 Puzzle Problem using DFS
+
+goal = [
+    [1, 2, 3],
+    [8, 0, 4],
+    [7, 6, 5]
+]
+
+visited = set()
+max_depth = 500
+
+
+def display(state):
+    for row in state:
+        print(row)
+    print()
+
+
+def is_goal(state):
+    return state == goal
+
+
+def dfs(state, depth):
+
+    # Check if goal state is reached
+    if is_goal(state):
+        print("Goal State Reached!")
+        display(state)
+        return True
+
+    # Stop if maximum depth is reached
+    if depth >= max_depth:
+        return False
+
+    # Convert state into tuple for visited set
+    key = tuple(tuple(row) for row in state)
+
+    if key in visited:
+        return False
+
+    visited.add(key)
+
+    # Find the empty space (0)
+    for i in range(3):
+        for j in range(3):
+            if state[i][j] == 0:
+                x, y = i, j
+
+    # Possible movements: Up, Down, Left, Right
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    for dx, dy in moves:
+
+        nx = x + dx
+        ny = y + dy
+
+        # Check valid movement
+        if 0 <= nx < 3 and 0 <= ny < 3:
+
+            # Create a new state
+            new_state = [row[:] for row in state]
+
+            # Swap empty space with adjacent tile
+            new_state[x][y], new_state[nx][ny] = \
+                new_state[nx][ny], new_state[x][y]
+
+            print("Exploring State:")
+            display(new_state)
+
+            if dfs(new_state, depth + 1):
+                return True
+
+    return False
+
+
+# Main program
+print("Enter the initial state:")
+
+start = []
+
+for i in range(3):
+    row = list(map(int, input().split()))
+    start.append(row)
+
+
+display(start)
+
+if dfs(start, 0):
+    print("Puzzle Solved Successfully!")
+else:
+    print("Solution Not Found Within Depth Limit.")
