@@ -1,1 +1,113 @@
 
+# 8 Puzzle Problem using Iterative Deepening Search (IDS)
+
+goal = [
+    [2, 8, 3],
+    [1, 6, 4],
+    [0, 7, 5]
+]
+
+# Convert state into tuple
+def get_key(state):
+    return tuple(tuple(row) for row in state)
+
+
+# Display puzzle
+def display(state):
+    for row in state:
+        print(row)
+    print()
+
+
+# Check goal state
+def is_goal(state):
+    return state == goal
+
+
+# Depth Limited Search
+def dls(state, depth, limit, visited):
+
+    # Check if goal is reached
+    if is_goal(state):
+        print("\nGoal State Reached!")
+        display(state)
+        return True
+
+    # Stop if depth limit is reached
+    if depth == limit:
+        return False
+
+    key = get_key(state)
+
+    if key in visited:
+        return False
+
+    visited.add(key)
+
+    # Find empty space (0)
+    for i in range(3):
+        for j in range(3):
+            if state[i][j] == 0:
+                x, y = i, j
+
+    # Possible movements: Up, Down, Left, Right
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    for dx, dy in moves:
+
+        nx = x + dx
+        ny = y + dy
+
+        # Check valid movement
+        if 0 <= nx < 3 and 0 <= ny < 3:
+
+            # Create new state
+            new_state = [row[:] for row in state]
+
+            # Swap empty space with adjacent tile
+            new_state[x][y], new_state[nx][ny] = \
+                new_state[nx][ny], new_state[x][y]
+
+            print("Exploring State:")
+            display(new_state)
+
+            if dls(new_state, depth + 1, limit, visited):
+                return True
+
+    return False
+
+
+# Iterative Deepening Search
+def ids(start):
+
+    for limit in range(31):
+
+        print("\nSearching at Depth Limit:", limit)
+
+        visited = set()
+
+        if dls(start, 0, limit, visited):
+
+            print("Final Depth Limit:", limit)
+
+            return True
+
+    return False
+
+
+# Main Program
+print("Enter the initial state:")
+
+start = []
+
+for i in range(3):
+    row = list(map(int, input().split()))
+    start.append(row)
+
+print("\nInitial State:")
+display(start)
+
+if ids(start):
+    print("Puzzle Solved Successfully!")
+else:
+    print("Solution Not Found Within Depth Limit.")
