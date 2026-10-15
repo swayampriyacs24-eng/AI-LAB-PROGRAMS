@@ -1,1 +1,69 @@
 
+import random
+import math
+
+N = 8
+
+def cost(board):
+    conflicts = 0
+    for i in range(N):
+        for j in range(i + 1, N):
+            if board[i] == board[j] or abs(board[i] - board[j]) == abs(i - j):
+                conflicts += 1
+    return conflicts
+
+
+def simulated_annealing():
+    steps = 0
+
+    while True:
+        board = list(range(N))
+        random.shuffle(board)
+
+        temperature = 100
+        print("Initial board :")
+        print(board)
+        while temperature > 0.01:
+            current_cost = cost(board)
+
+            if current_cost == 0:
+                print("\nSolution found!")
+                print("Final board:", board)
+                print("Final cost:", current_cost)
+                return board
+
+            # Create a neighboring board by swapping two queens
+            new_board = board[:]
+            i, j = random.sample(range(N), 2)
+            new_board[i], new_board[j] = new_board[j], new_board[i]
+
+            new_cost = cost(new_board)
+            difference = new_cost - current_cost
+
+            if difference < 0 or random.random() < math.exp(-difference / temperature):
+                board = new_board
+
+            steps += 1
+
+            # Display the first few steps
+            if steps <= 10:
+                print("Step:", steps)
+                print( " Current cost:", current_cost)
+                print("Neighbor cost:", new_cost)
+                print(" Temperature:", round(temperature, 2))
+
+            temperature *= 0.95
+
+    # The outer loop restarts if a run doesn't find a solution
+
+
+solution = simulated_annealing()
+
+print("\nChessboard:")
+for row in range(N):
+    for col in range(N):
+        if solution[col] == row:
+            print("Q", end=" ")
+        else:
+            print(".", end=" ")
+    print()
