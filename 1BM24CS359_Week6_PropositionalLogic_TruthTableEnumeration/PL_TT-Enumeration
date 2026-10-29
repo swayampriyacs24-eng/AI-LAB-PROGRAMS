@@ -1,1 +1,55 @@
+def pl_true(sentence, model):
+   
+    if sentence in model:
+        return model[sentence]
+    if sentence[0] == '!':
+        return not pl_true(sentence[1], model)
 
+    if '&' in sentence:
+        parts = sentence.split('&')
+        return all(pl_true(p.strip(), model) for p in parts)
+
+    if '|' in sentence:
+        parts = sentence.split('|')
+        return any(pl_true(p.strip(), model) for p in parts)
+
+    if '>' in sentence:
+        p, q = sentence.split('>', 1)
+        return not pl_true(p.strip(), model) or pl_true(q.strip(), model)
+
+    return False
+
+
+def tt_check_all(kb, alpha, symbols, model):
+    
+    if not symbols:
+        if pl_true(kb, model):
+            return pl_true(alpha, model)
+        return True
+
+  
+    P = symbols[0]
+    rest = symbols[1:]
+
+    
+    return (
+        tt_check_all(kb, alpha, rest, {**model, P: True})
+        and
+        tt_check_all(kb, alpha, rest, {**model, P: False})
+    )
+
+
+def tt_entails(kb, alpha, symbols):
+    return tt_check_all(kb, alpha, symbols, {})
+
+
+
+kb = input("Enter knowledge base (use &, |, !, >): ").replace(" ", "")
+alpha = input("Enter query: ").replace(" ", "")
+
+symbols = input("Enter propositional symbols separated by spaces: ").split()
+
+if tt_entails(kb, alpha, symbols):
+    print("KB entails alpha: TRUE")
+else:
+    print("KB entails alpha: FALSE")
