@@ -1,0 +1,84 @@
+
+def is_variable(x):
+    return isinstance(x, str) and x[0].islower()
+
+
+def occurs_check(var, term, subs):
+    term = substitute(term, subs)
+
+    if var == term:
+        return True
+
+    if isinstance(term, tuple):
+        return any(occurs_check(var, arg, subs) for arg in term)
+
+    return False
+
+
+def substitute(term, subs):
+    if isinstance(term, str):
+        while term in subs:
+            term = subs[term]
+        return term
+
+    if isinstance(term, tuple):
+        return tuple(substitute(arg, subs) for arg in term)
+
+    return term
+
+
+def unify(x, y, subs=None):
+    if subs is None:
+        subs = {}
+
+    x = substitute(x, subs)
+    y = substitute(y, subs)
+
+    # If both are identical
+    if x == y:
+        return subs
+
+    # If x is a variable
+    if is_variable(x):
+        if occurs_check(x, y, subs):
+            return None
+        subs[x] = y
+        return subs
+
+    # If y is a variable
+    if is_variable(y):
+        if occurs_check(y, x, subs):
+            return None
+        subs[y] = x
+        return subs
+
+    # If both are compound expressions
+    if isinstance(x, tuple) and isinstance(y, tuple):
+
+        # Predicate/function names must match
+        if x[0] != y[0] or len(x) != len(y):
+            return None
+
+        for a, b in zip(x[1:], y[1:]):
+            subs = unify(a, b, subs)
+
+            if subs is None:
+                return None
+
+        return subs
+
+    return None
+
+
+# Example
+expr1 = ("Knows", "x", ("Father", "x"))
+expr2 = ("Knows", "John", ("Father", "John"))
+
+result = unify(expr1, expr2)
+
+if result is not None:
+    print("Unification successful!")
+    print("Substitution:", result)
+else:
+    print("Unification failed!")
+
