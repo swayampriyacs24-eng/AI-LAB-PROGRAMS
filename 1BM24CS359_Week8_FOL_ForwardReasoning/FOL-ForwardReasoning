@@ -1,0 +1,129 @@
+
+def unify(pattern, fact, theta=None):
+    if theta is None:
+        theta = {}
+
+    for x, y in zip(pattern, fact):
+        if x.startswith("?"):
+            theta[x] = y
+        elif x != y:
+            return None
+
+    return theta
+
+
+def forward_chaining(facts, rules, query):
+    iteration = 1
+
+    print("=" * 40)
+    print("       FORWARD CHAINING ALGORITHM")
+    print("=" * 40)
+
+    print("\nInitial Facts:")
+    for fact in sorted(facts):
+        print(" ", fact)
+
+    while True:
+        new = set()
+
+        for premises, conclusion in rules:
+            matches = [{}]
+
+            for premise in premises:
+                next_matches = []
+
+                for theta in matches:
+                    pattern = tuple(theta.get(x, x) for x in premise)
+
+                    for fact in facts:
+                        result = unify(pattern, fact, theta.copy())
+
+                        if result is not None:
+                            next_matches.append(result)
+
+                matches = next_matches
+
+            for theta in matches:
+                inferred = tuple(theta.get(x, x) for x in conclusion)
+
+                if inferred not in facts:
+                    new.add(inferred)
+
+        if not new:
+            print(f"\nIteration {iteration}: No new facts generated.")
+            break
+
+        print(f"\nIteration {iteration}:")
+        for fact in sorted(new):
+            print(" +", fact)
+
+        facts.update(new)
+        iteration += 1
+
+    # Query Evaluation
+    print("\n" + "=" * 40)
+    print("          QUERY EVALUATION")
+    print("=" * 40)
+
+    print("Query: Is Tommy a Carnivore?")
+    print("Checking knowledge base...")
+
+    if query in facts:
+        print("\nResult: TRUE")
+        print("Tommy is identified as a Carnivore.")
+
+        print("\nInference Chain:")
+        print("1. Tommy barks and has four legs.")
+        print("2. Therefore, Tommy is a Dog.")
+        print("3. Every dog is a Mammal.")
+        print("4. Tommy has sharp teeth.")
+        print("5. Therefore, Tommy is a Carnivore.")
+
+        print("\nFinal Conclusion:")
+        print("Tommy IS A CARNIVORE.")
+
+    else:
+        print("\nResult: FALSE")
+        print("Tommy cannot be identified as a Carnivore.")
+
+    print("=" * 40)
+
+
+# Initial Facts
+facts = {
+    ("Barks", "Tommy"),
+    ("FourLegs", "Tommy"),
+    ("SharpTeeth", "Tommy")
+}
+
+
+# Knowledge Base Rules
+rules = [
+    # Rule 1: Dog
+    ([("Barks", "?x"), ("FourLegs", "?x")],
+     ("Dog", "?x")),
+
+    # Rule 2: Bird
+    ([("Feathers", "?x"), ("LaysEggs", "?x")],
+     ("Bird", "?x")),
+
+    # Rule 3: Mammal
+    ([("Dog", "?x")],
+     ("Mammal", "?x")),
+
+    # Rule 4: Carnivore
+    ([("Mammal", "?x"), ("SharpTeeth", "?x")],
+     ("Carnivore", "?x")),
+
+    # Rule 5: Can Fly
+    ([("Bird", "?x")],
+     ("CanFly", "?x"))
+]
+
+
+# Query
+query = ("Carnivore", "Tommy")
+
+
+# Execute Forward Chaining
+forward_chaining(facts, rules, query)
